@@ -82,3 +82,5 @@ yarn-debug.log*
 yarn-error.log*
 
 .idea
+/.vs
+/.vs/slnx.sqlite
