@@ -9,28 +9,28 @@ pipeline {
     stages {
         stage('Build Image') {
             steps {
-                sh 'docker build -t myimage .'
+                docker build -t myimage .
             }
         }
         stage('Run Container') {
             steps {
-                sh 'docker run -d --name mycontainer -p 3000:3000 myimage'
+                docker run -d --name mycontainer -p 3000:3000 myimage
             }
         }
         stage('Install NPM Packages') {
             steps {
-                sh 'npm install'
+                npm install
             }
         }
         
         stage('Test Container') {
             steps {
-                sh 'docker exec mycontainer curl localhost:80'
+                docker exec mycontainer curl localhost:3000
             }
         }
         stage('Stop Container') {
             steps {
-                sh 'docker stop mycontainer'
+                docker stop mycontainer
             }
         }
     }
