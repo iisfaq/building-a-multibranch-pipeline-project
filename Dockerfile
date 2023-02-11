@@ -4,4 +4,3 @@ EXPOSE 5000
 WORKDIR /src
 COPY . .
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]

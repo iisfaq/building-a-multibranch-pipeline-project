@@ -14,12 +14,12 @@ pipeline {
         stage('Run Container') {
             steps {
              catchError {
-                bat 'docker killmycontainer'
+                bat 'docker kill mycontainer'
              }
               catchError {
                 bat 'docker rm mycontainer'
                 }
-                bat 'docker run -d --name mycontainer -p 3000:3000 myimage'
+                bat 'docker run -t -d --name mycontainer -p 3000:3000 myimage'
             }
         }
         stage('Install NPM Packages') {
