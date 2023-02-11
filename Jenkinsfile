@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Build Image') {
             steps {
-                bat 'docker build -t myimage .'
+                bat 'docker build -t "myimage:dockerfile" .'
             }
         }
         stage('Run Container') {
@@ -18,7 +18,7 @@ pipeline {
         }
         stage('Install NPM Packages') {
             steps {
-                bat 'npm install'
+                bat 'docker exec mycontainer npm install'
             }
         }
 
@@ -28,9 +28,9 @@ pipeline {
                 branch 'development'
             }
             steps {
-                bat './jenkins/scripts/deliver-for-development.sh'
+                bat 'docker exec mycontainer sh ./jenkins/scripts/deliver-for-development.sh'
                 input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                bat './jenkins/scripts/kill.sh'
+                bat 'docker exec mycontainer sh ./jenkins/scripts/kill.sh'
             }
             // steps {
             //     bat 'docker exec mycontainer curl localhost:3000'
