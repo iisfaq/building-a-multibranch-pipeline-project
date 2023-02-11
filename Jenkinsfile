@@ -19,6 +19,7 @@ pipeline {
               catchError {
                 bat 'docker rm mycontainer'
                 }
+                // -t keep docker container running
                 bat 'docker run -t -d --name mycontainer -p 3000:3000 myimage'
             }
         }
