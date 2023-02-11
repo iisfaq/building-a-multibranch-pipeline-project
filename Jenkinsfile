@@ -1,4 +1,5 @@
 pipeline {
+
     agent  { 
         node { label 'srv2022' }
     }
@@ -6,11 +7,46 @@ pipeline {
         CI = 'true'
     }
     stages {
-        stage('Create Docker Image') {
+
+    pipeline {
+    agent {
+        label 'docker'
+    }
+    stages {
+        stage('Build Image') {
             steps {
-                docker build -t "chris:dockerfile" . 
+                sh 'docker build -t myimage .'
             }
         }
+        stage('Run Container') {
+            steps {
+                sh 'docker run -d --name mycontainer -p 3000:3000 myimage'
+            }
+        }
+        stage('Install NPM Packages') {
+            steps {
+                sh 'npm install'
+            }
+        }
+        
+        stage('Test Container') {
+            steps {
+                sh 'docker exec mycontainer curl localhost:80'
+            }
+        }
+        stage('Stop Container') {
+            steps {
+                sh 'docker stop mycontainer'
+            }
+        }
+    }
+}
+
+ //       stage('Create Docker Image') {
+   //         steps {
+     //           docker build -t "chris:dockerfile" . 
+       //     }
+       // }/
         // stage('Build') {
         //     steps {
         //         sh 'npm install'
@@ -41,7 +77,7 @@ pipeline {
         //         sh './jenkins/scripts/kill.sh'
         //     }
         // }
-    }
-}
+//    }
+//}
 
 
