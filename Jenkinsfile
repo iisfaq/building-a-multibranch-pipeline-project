@@ -17,6 +17,9 @@ pipeline {
         }
         stage('Build Image') {
             steps {
+                catchError {
+                    bat 'docker rmi myimage --force'
+                }
                 bat 'docker build -t "myimage:dockerfile" .'
             }
         }
