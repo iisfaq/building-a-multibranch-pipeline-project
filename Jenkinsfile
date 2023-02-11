@@ -22,12 +22,7 @@ pipeline {
             }
         }
 
-        stage('Install NPM Packages') {
-            steps {
-                bat 'npm install'
-            }
-        }
-
+      
         stage('Test Container') {
             when {
                 branch 'development'
