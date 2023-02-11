@@ -1,2 +1,4 @@
 FROM node:16.13.1-alpine
-run ls /
+WORKDIR /src
+COPY . .
+RUN ls /src
