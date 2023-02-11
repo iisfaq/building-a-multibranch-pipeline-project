@@ -20,7 +20,7 @@ pipeline {
                 catchError {
                     bat 'docker rmi myimage --force'
                 }
-                bat 'docker build -t "myimage:dockerfile" .'
+                bat 'docker build -t "myimage:latest" .'
             }
         }
         stage('Run Container') {
