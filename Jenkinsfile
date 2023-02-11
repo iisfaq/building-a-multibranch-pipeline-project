@@ -1,9 +1,14 @@
 pipeline {
-    agent { dockerfile true} 
+    agent  { label 'srv2022' }
     environment {
         CI = 'true'
     }
     stages {
+        stage('Create Docker Image') {
+            steps {
+                sh 'docker build -t "chris:dockerfile" . '
+            }
+        }
         stage('Build') {
             steps {
                 sh 'npm install'
