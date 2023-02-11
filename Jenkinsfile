@@ -1,6 +1,5 @@
 pipeline {
-
-    agent  { 
+    agent  {
         node { label 'srv2022' }
     }
     environment {
@@ -9,28 +8,42 @@ pipeline {
     stages {
         stage('Build Image') {
             steps {
-                docker build -t myimage .
+                bat 'docker build -t myimage .'
             }
         }
         stage('Run Container') {
             steps {
-                docker run -d --name mycontainer -p 3000:3000 myimage
+                bat 'docker run -d --name mycontainer -p 3000:3000 myimage'
             }
         }
         stage('Install NPM Packages') {
             steps {
-                npm install
+                bat 'npm install'
             }
         }
-        
-        stage('Test Container') {
+
+        stage('Install NPM Packages') {
             steps {
-                docker exec mycontainer curl localhost:3000
+                bat 'npm install'
             }
+        }
+
+        stage('Test Container') {
+            when {
+                branch 'development'
+            }
+            steps {
+                bat './jenkins/scripts/deliver-for-development.sh'
+                input message: 'Finished using the web site? (Click "Proceed" to continue)'
+                bat './jenkins/scripts/kill.sh'
+            }
+            // steps {
+            //     bat 'docker exec mycontainer curl localhost:3000'
+            // }
         }
         stage('Stop Container') {
             steps {
-                docker stop mycontainer
+                bat 'docker stop mycontainer'
             }
         }
     }
@@ -38,7 +51,7 @@ pipeline {
 
 //       stage('Create Docker Image') {
 //         steps {
-//           docker build -t "chris:dockerfile" . 
+//           docker build -t "chris:dockerfile" .
 //     }
 // }/
 // stage('Build') {
