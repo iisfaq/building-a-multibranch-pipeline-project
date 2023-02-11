@@ -1,4 +1,7 @@
-FROM node:16.13.1-alpine
+FROM node:lts-alpine
+EXPOSE 3000
+EXPOST 5000
 WORKDIR /src
 COPY . .
-RUN ls /src
+
+
