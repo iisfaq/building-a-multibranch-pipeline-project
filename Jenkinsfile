@@ -2,10 +2,19 @@ pipeline {
     agent  {
         node { label 'srv2022' }
     }
+    options {
+        skipDefaultCheckout true
+    }
     environment {
         CI = 'true'
     }
     stages {
+        stage('clean_workspace_and_checkout_source') {
+            steps {
+                deleteDir()
+                checkout scm
+            }
+        }
         stage('Build Image') {
             steps {
                 bat 'docker build -t "myimage:dockerfile" .'
@@ -13,11 +22,11 @@ pipeline {
         }
         stage('Run Container') {
             steps {
-             catchError {
-                bat 'docker kill mycontainer'
-             }
-              catchError {
-                bat 'docker rm mycontainer'
+                catchError {
+                    bat 'docker kill mycontainer'
+                }
+                catchError {
+                    bat 'docker rm mycontainer'
                 }
                 // -t keep docker container running
                 bat 'docker run -t -d --name mycontainer -p 3000:3000 myimage'
@@ -29,7 +38,6 @@ pipeline {
             }
         }
 
-      
         stage('Test Container') {
             when {
                 branch 'development'
@@ -39,13 +47,27 @@ pipeline {
                 input message: 'Finished using the web site? (Click "Proceed" to continue)'
                 bat 'docker exec mycontainer sh ./jenkins/scripts/kill.sh'
             }
-            // steps {
-            //     bat 'docker exec mycontainer curl localhost:3000'
-            // }
+        // steps {
+        //     bat 'docker exec mycontainer curl localhost:3000'
+        // }
         }
         stage('Stop Container') {
             steps {
                 bat 'docker stop mycontainer'
+            }
+        }
+    }
+    post {
+        cleanup {
+            /* clean up our workspace */
+            deleteDir()
+            /* clean up tmp directory */
+            dir("${workspace}@tmp") {
+                deleteDir()
+            }
+            /* clean up script directory */
+            dir("${workspace}@script") {
+                deleteDir()
             }
         }
     }
