@@ -1,0 +1,7 @@
+FROM node:lts-alpine
+EXPOSE 3000
+EXPOST 5000
+WORKDIR /src
+COPY . .
+
+
