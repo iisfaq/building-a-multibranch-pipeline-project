@@ -34,7 +34,7 @@ pipeline {
                     bat "docker kill ${buildContainer}"
                 }
                 catchError {
-                    bat "'docker rm ${buildContainer}"
+                    bat "docker rm ${buildContainer}"
                 }
                 // -t keep docker container running
                 bat "docker run -t -d --name ${buildContainer} -p 3000:3000 ${baseImage}"
