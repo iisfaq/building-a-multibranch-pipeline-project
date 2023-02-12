@@ -1,5 +1,5 @@
 def name = 'react'
-def tempFolder  = "c:\temp\app"
+def tempFolder  = "c:\\temp\\app"
 def buildImage = "my-${name}-build-image"
 def buildContainer = "my-${name}-build-container"
 def runImage = "my-${name}-run-image"
@@ -44,7 +44,7 @@ pipeline {
         }
         stage('Show Environment Vars') {
             steps {
-                bat "set"
+                bat 'set'
             }
         }
         stage('Create Build Image') {
@@ -85,7 +85,7 @@ pipeline {
                 bat "docker cp ${tempFolder} ${runContainer}:/"
                 bat "rmdir ${tempFolder} /s /q"
                 bat "docker exec ${runContainer} npm install -g serve"
-                bat "serve -s /app"
+                bat 'serve -s /app'
             }
         }
         stage('Production Container') {
