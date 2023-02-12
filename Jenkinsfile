@@ -19,7 +19,6 @@ pipeline {
     stages {
         stage('Clean Workspace & Checkout Source Code') {
             steps {
-
                 deleteDir()
                 checkout scm
 
@@ -114,16 +113,20 @@ pipeline {
       //  }
 
         cleanup {
-            /* clean up our workspace */
-            //  deleteDir()
-            /* clean up tmp directory */
-            dir("${workspace}@tmp") {
-                deleteDir()
+            catchError {
+                /* clean up our workspace */
+                //  deletedir()
+
+                /* clean up tmp directory */
+                dir("${workspace}@tmp") {
+                    deletedir()
+                }
+
+                /* clean up script directory */
+                dir("${workspace}@script") {
+                    deletedir()
+                }
             }
-            /* clean up script directory */
-            //dir("${workspace}@script") {
-            //    deleteDir()
-           // }
         }
     }
 }
