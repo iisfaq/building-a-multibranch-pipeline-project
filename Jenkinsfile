@@ -20,24 +20,24 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build Image') {
+        stage('Build Docker Image') {
             steps {
                 catchError {
-                    bat 'docker rmi ${baseImage} --force'
+                    bat "docker rmi ${baseImage} --force"
                 }
-                bat 'docker build -t "${baseImage}:latest" .'
+                bat "docker build -t ${baseImage}:latest ."
             }
         }
         stage('Run Container') {
             steps {
                 catchError {
-                    bat 'docker kill ${buildContainer}'
+                    bat "docker kill ${buildContainer}"
                 }
                 catchError {
-                    bat 'docker rm ${buildContainer}'
+                    bat "'docker rm ${buildContainer}"
                 }
                 // -t keep docker container running
-                bat 'docker run -t -d --name ${buildContainer} -p 3000:3000 ${baseImage}'
+                bat "docker run -t -d --name ${buildContainer} -p 3000:3000 ${baseImage}"
             }
         }
         stage('Install NPM Packages') {
