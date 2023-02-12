@@ -22,7 +22,7 @@ pipeline {
                 deleteDir()
                 checkout scm
 
-                catchError {
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     bat "docker kill ${buildContainer}"
                 }
                 //catchError {
