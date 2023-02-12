@@ -1,9 +1,9 @@
 def name = 'react'
 def tempFolder  = "c:\\temp\\app"
-def buildImage = "my-${name}-build-image"
-def buildContainer = "my-${name}-build-container"
+def buildImage = "my-${name}-build-image-${BUILD_ID}"
+def buildContainer = "my-${name}-build-container-${BUILD_ID}"
 def runImageBase = "node:lts-alpine"
-def runContainer = "my-${name}-run-container"
+def runContainer = "my-${name}-run-container-${BUILD_ID}"
 def finalImage = "my-${name}-run-image"
 
 pipeline {
@@ -65,7 +65,7 @@ pipeline {
         stage('Create Run Container') {
             steps {
                 // -t keep docker container running
-                bat "docker run -t -d --name ${runContainer} -p 3000:3000 ${runImageBase}"
+                bat "docker run -t -d --name ${runContainer} ${runImageBase}"
 
                 bat "docker exec ${runContainer} mkdir /app"
             }
