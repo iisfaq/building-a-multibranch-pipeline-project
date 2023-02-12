@@ -84,7 +84,7 @@ pipeline {
                 bat "docker exec ${runContainer} npm install -g serve"
                 // bat "docker exec ${runContainer} serve -s /app -l 3000"
 
-                bat "docker commit ${runContainer} ${finalImage}:Build{BUILD_ID}"
+                bat "docker commit ${runContainer} ${finalImage}:Build${BUILD_ID}"
             }
         }
         stage('Production Container') {
