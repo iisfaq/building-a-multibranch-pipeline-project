@@ -23,45 +23,53 @@ pipeline {
         stage('Build Image') {
             steps {
                 catchError {
-                    bat 'docker rmi myimage --force'
+                    bat 'docker rmi ${baseImage} --force'
                 }
-                bat 'docker build -t "myimage:latest" .'
+                bat 'docker build -t "${baseImage}:latest" .'
             }
         }
         stage('Run Container') {
             steps {
                 catchError {
-                    bat 'docker kill mycontainer'
+                    bat 'docker kill ${buildContainer}'
                 }
                 catchError {
-                    bat 'docker rm mycontainer'
+                    bat 'docker rm ${buildContainer}'
                 }
                 // -t keep docker container running
-                bat 'docker run -t -d --name mycontainer -p 3000:3000 myimage'
+                bat 'docker run -t -d --name ${buildContainer} -p 3000:3000 ${baseImage}'
             }
         }
         stage('Install NPM Packages') {
             steps {
-                bat 'docker exec mycontainer npm install'
+                bat 'docker exec ${buildContainer} npm install'
             }
         }
 
-        stage('Test Container') {
+        stage('Development Container') {
             when {
                 branch 'development'
             }
             steps {
-                bat 'docker exec mycontainer sh ./jenkins/scripts/deliver-for-development.sh'
+                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh'
                 input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                bat 'docker exec mycontainer sh ./jenkins/scripts/kill.sh'
+                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh'
             }
-        // steps {
-        //     bat 'docker exec mycontainer curl localhost:3000'
-        // }
         }
+        stage('Production Container') {
+            when {
+                branch 'development'
+            }
+            steps {
+                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh'
+                input message: 'Finished using the web site? (Click "Proceed" to continue)'
+                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh'
+            }
+        }
+
         stage('Stop Container') {
             steps {
-                bat 'docker stop mycontainer'
+                bat 'docker stop ${buildContainer}'
             }
         }
     }
@@ -81,40 +89,3 @@ pipeline {
     }
 }
 
-//       stage('Create Docker Image') {
-//         steps {
-//           docker build -t "chris:dockerfile" .
-//     }
-// }/
-// stage('Build') {
-//     steps {
-//         sh 'npm install'
-//     }
-// }
-// stage('Test') {
-//     steps {
-//         sh './jenkins/scripts/test.sh'
-//     }
-// }
-// stage('Deliver for development') {
-//     when {
-//         branch 'development'
-//     }
-//     steps {
-//         sh './jenkins/scripts/deliver-for-development.sh'
-//         input message: 'Finished using the web site? (Click "Proceed" to continue)'
-//         sh './jenkins/scripts/kill.sh'
-//     }
-// }
-// stage('Deploy for production') {
-//     when {
-//         branch 'production'
-//     }
-//     steps {
-//         sh './jenkins/scripts/deploy-for-production.sh'
-//         input message: 'Finished using the web site? (Click "Proceed" to continue)'
-//         sh './jenkins/scripts/kill.sh'
-//     }
-// }
-//    }
-//}
