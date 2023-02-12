@@ -2,7 +2,7 @@ def name = 'react'
 def tempFolder  = "c:\\temp\\app"
 def buildImage = "my-${name}-build-image"
 def buildContainer = "my-${name}-build-container"
-def runImage = "node:lts-alpine"
+def runImageBase = "node:lts-alpine"
 def runContainer = "my-${name}-run-container"
 
 pipeline {
@@ -54,12 +54,17 @@ pipeline {
                 bat "docker run -t -d --name ${buildContainer} ${buildImage}"
             }
         }
-              
+        stage('Pull Run Image') {
+            steps {
+                // -t keep docker container running
+                bat "docker pull ${runImageBase}"
+            }
+        }              
 
         stage('Create Run Container') {
             steps {
                 // -t keep docker container running
-                bat "docker run -t -d --name ${runContainer} -p 3000:3000 ${runImage}"
+                bat "docker run -t -d --name ${runContainer} -p 3000:3000 ${runImageBase}"
 
                 bat "docker exec ${runContainer} mkdir /app"
             }
