@@ -1,4 +1,5 @@
 def name = 'react'
+def tempFolder  = "c:\temp\app"
 def buildImage = "my-${name}-build-image"
 def buildContainer = "my-${name}-build-container"
 def runImage = "my-${name}-run-image"
@@ -69,7 +70,7 @@ pipeline {
                 // -t keep docker container running
                 bat "docker run -t -d --name ${runContainer} -p 3000:3000 ${runImage}"
 
-                bat "docker exec ${runContainer} sh mkdir /app"
+                bat "docker exec ${runContainer} mkdir /app"
             }
         }
 
@@ -80,7 +81,11 @@ pipeline {
             steps {
                 bat "docker exec ${buildContainer} npm install"
                 bat "docker exec ${buildContainer} npm run build"
-                bat "docker cp ${buildContainer}:/src/build ${runContainer}:/app"
+                bat "docker cp ${buildContainer}:/src/build ${tempFolder}"
+                bat "docker cp ${tempFolder} ${runContainer}:/"
+                bat "rmdir ${tempFolder} /s /q"
+                bat "docker exec ${runContainer} npm install -g serve"
+                bat "serve -s /app"
             }
         }
         stage('Production Container') {
