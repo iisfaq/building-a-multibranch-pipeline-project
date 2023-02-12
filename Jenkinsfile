@@ -1,7 +1,7 @@
-def name = 'test'
-def baseBuildImage = "my-${name}-build-image"
-def baseRunImage = "my-${name}-image"
+def name = 'react'
+def buildImage = "my-${name}-build-image"
 def buildContainer = "my-${name}-build-container"
+def runImage = "my-${name}-run-image"
 def runContainer = "my-${name}-run-container"
 
 pipeline {
@@ -19,31 +19,57 @@ pipeline {
             steps {
                 deleteDir()
                 checkout scm
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
-                catchError {
-                    bat "docker rmi ${baseBuildImage} --force"
-                }
-                bat "docker build -t ${baseBuildImage}:latest ."
-            }
-        }
-        stage('Run Container') {
-            steps {
+
                 catchError {
                     bat "docker kill ${buildContainer}"
                 }
                 catchError {
                     bat "docker rm ${buildContainer}"
                 }
-                // -t keep docker container running
-                bat "docker run -t -d --name ${buildContainer} ${baseBuildImage}"
+                catchError {
+                    bat "docker kill ${runContainer}"
+                }
+                catchError {
+                    bat "docker rm ${runContainer}"
+                }
+
+                catchError {
+                    bat "docker rmi ${runImage} --force"
+                }
+                catchError {
+                    bat "docker rmi ${buildImage} --force"
+                }
             }
         }
-        stage('Install NPM Packages') {
+        stage('Show Environment Vars') {
             steps {
-                bat "docker exec ${buildContainer} npm install"
+                bat "set"
+            }
+        }
+        stage('Create Build Image') {
+            steps {
+                bat "docker build -t ${buildImage}:latest ."
+            }
+        }
+        stage('Create Build Container') {
+            steps {
+                // -t keep docker container running
+                bat "docker run -t -d --name ${buildContainer} ${buildImage}"
+            }
+        }
+
+        stage('Create Run Image') {
+            steps {
+                bat "docker build -t ${runImage}:latest ."
+            }
+        }
+
+        stage('Create Run Container') {
+            steps {
+                // -t keep docker container running
+                bat "docker run -t -d --name ${runContainer} -p 3000:3000 ${runImage}"
+
+                bat "docker exec ${runContainer} sh mkdir /app"
             }
         }
 
@@ -52,24 +78,9 @@ pipeline {
                 branch 'development'
             }
             steps {
+                bat "docker exec ${buildContainer} npm install"
                 bat "docker exec ${buildContainer} npm run build"
-                catchError {
-                    bat "docker rmi ${baseRunImage} --force"
-                }
-                bat "docker build -t ${baseRunImage}:latest ."
-                
-                catchError {
-                    bat "docker kill ${runContainer}"
-                }
-                catchError {
-                    bat "docker rm ${runContainer}"
-                }
-                // -t keep docker container running
-                bat "docker run -t -d --name ${runContainer} -p 3000:3000 ${baseRunImage}"
-
-                bat "docker exec ${runContainer} sh mkdir /app"
-
-                bat "docker cp  ${buildContainer}:/src/build ${runContainer}:/app"
+                bat "docker cp ${buildContainer}:/src/build ${runContainer}:/app"
             }
         }
         stage('Production Container') {
@@ -83,9 +94,10 @@ pipeline {
             }
         }
 
-        stage('Stop Container') {
+        stage('Stop Running Containers') {
             steps {
                 bat "docker stop ${buildContainer}"
+                bat "docker stop ${runContainer}"
             }
         }
     }
@@ -104,4 +116,3 @@ pipeline {
         }
     }
 }
-
