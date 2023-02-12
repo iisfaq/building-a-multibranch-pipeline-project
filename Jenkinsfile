@@ -22,21 +22,21 @@ pipeline {
                 deleteDir()
                 checkout scm
 
-            // catchError {
-            //     bat "docker kill ${buildContainer}"
-            // }
-            // catchError {
-            //     bat "docker rm ${buildContainer}"
-            // }
-            // catchError {
-            //     bat "docker kill ${runContainer}"
-            // }
-            // catchError {
-            //     bat "docker rm ${runContainer}"
-            // }
-            // catchError {
-            //     bat "docker rmi ${buildImage} --force"
-            // }
+                catchError {
+                    bat "docker kill ${buildContainer}"
+                }
+                catchError {
+                    bat "docker rm ${buildContainer}"
+                }
+                catchError {
+                    bat "docker kill ${runContainer}"
+                }
+                catchError {
+                    bat "docker rm ${runContainer}"
+                }
+                catchError {
+                    bat "docker rmi ${buildImage} --force"
+                }
             }
         }
         stage('Show Environment Vars') {
