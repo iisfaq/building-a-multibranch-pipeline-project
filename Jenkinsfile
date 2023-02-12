@@ -2,7 +2,7 @@ def name = 'react'
 def tempFolder  = "c:\\temp\\app"
 def buildImage = "my-${name}-build-image"
 def buildContainer = "my-${name}-build-container"
-def runImage = "my-${name}-run-image"
+def runImage = "node:lts-alpine"
 def runContainer = "my-${name}-run-container"
 
 pipeline {
@@ -32,11 +32,7 @@ pipeline {
                 }
                 catchError {
                     bat "docker rm ${runContainer}"
-                }
-
-                catchError {
-                    bat "docker rmi ${runImage} --force"
-                }
+                }                
                 catchError {
                     bat "docker rmi ${buildImage} --force"
                 }
@@ -58,12 +54,7 @@ pipeline {
                 bat "docker run -t -d --name ${buildContainer} ${buildImage}"
             }
         }
-
-        stage('Create Run Image') {
-            steps {
-                bat "docker build -t ${runImage}:latest ."
-            }
-        }
+              
 
         stage('Create Run Container') {
             steps {
@@ -85,7 +76,7 @@ pipeline {
                 bat "docker cp ${tempFolder} ${runContainer}:/"
                 bat "rmdir ${tempFolder} /s /q"
                 bat "docker exec ${runContainer} npm install -g serve"
-                bat 'serve -s /app'
+                bat 'docker exec ${runContainer} serve -s /app -l 3000'
             }
         }
         stage('Production Container') {
