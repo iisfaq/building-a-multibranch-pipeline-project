@@ -1,3 +1,8 @@
+def name = 'test'
+def baseImage = "my-${name}-image"
+def buildContainer = "my-${name}-build-container"
+def runtimeContainer = "my-${name}-runtime-container"
+
 pipeline {
     agent  {
         node { label 'srv2022' }
@@ -63,7 +68,7 @@ pipeline {
     post {
         cleanup {
             /* clean up our workspace */
-          //  deleteDir()
+            //  deleteDir()
             /* clean up tmp directory */
             dir("${workspace}@tmp") {
                 deleteDir()
