@@ -42,7 +42,7 @@ pipeline {
         }
         stage('Install NPM Packages') {
             steps {
-                bat 'docker exec ${buildContainer} npm install'
+                bat "docker exec ${buildContainer} npm install"
             }
         }
 
@@ -51,9 +51,9 @@ pipeline {
                 branch 'development'
             }
             steps {
-                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh'
-                input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh'
+                bat "docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh"
+                input message: "Finished using the web site? (Click "Proceed" to continue)"
+                bat "docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh"
             }
         }
         stage('Production Container') {
@@ -61,15 +61,15 @@ pipeline {
                 branch 'development'
             }
             steps {
-                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh'
-                input message: 'Finished using the web site? (Click "Proceed" to continue)'
-                bat 'docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh'
+                bat "docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh"
+                input message: "Finished using the web site? (Click "Proceed" to continue)"
+                bat "docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh"
             }
         }
 
         stage('Stop Container') {
             steps {
-                bat 'docker stop ${buildContainer}'
+                bat "docker stop ${buildContainer}"
             }
         }
     }
