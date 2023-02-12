@@ -4,6 +4,7 @@ def buildImage = "my-${name}-build-image"
 def buildContainer = "my-${name}-build-container"
 def runImageBase = "node:lts-alpine"
 def runContainer = "my-${name}-run-container"
+def finalImage = "my-${name}-run-image"
 
 pipeline {
     agent  {
@@ -82,6 +83,8 @@ pipeline {
                 bat "rmdir ${tempFolder} /s /q"
                 bat "docker exec ${runContainer} npm install -g serve"
                 // bat "docker exec ${runContainer} serve -s /app -l 3000"
+
+                bat "docker commit ${runContainer} ${finalImage}:Build{BUILD_ID}"
             }
         }
         stage('Production Container') {
