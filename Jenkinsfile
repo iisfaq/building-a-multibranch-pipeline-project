@@ -22,10 +22,10 @@ pipeline {
                 deleteDir()
                 checkout scm
 
-                // catchError {
-                //     bat "docker kill ${buildContainer}"
-                // }
-                // catchError {
+                catchError {
+                    bat "docker kill ${buildContainer}"
+                }
+                //catchError {
                 //     bat "docker rm ${buildContainer}"
                 // }
                 // catchError {
