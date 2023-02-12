@@ -25,18 +25,18 @@ pipeline {
                 catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
                     bat "docker kill ${buildContainer}"
                 }
-                //catchError {
-                //     bat "docker rm ${buildContainer}"
-                // }
-                // catchError {
-                //     bat "docker kill ${runContainer}"
-                // }
-                // catchError {
-                //     bat "docker rm ${runContainer}"
-                // }
-                // catchError {
-                //     bat "docker rmi ${buildImage} --force"
-                // }
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    bat "docker rm ${buildContainer}"
+                }
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    bat "docker kill ${runContainer}"
+                }
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    bat "docker rm ${runContainer}"
+                }
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                    bat "docker rmi ${buildImage} --force"
+                }
             }
         }
         stage('Show Environment Vars') {
@@ -44,89 +44,83 @@ pipeline {
                 bat 'set'
             }
         }
-        // stage('Create Build Image') {
-        //     steps {
-        //         bat "docker build -t ${buildImage}:latest ."
-        //     }
-        // }
-        // stage('Create Build Container') {
-        //     steps {
-        //         // -t keep docker container running
-        //         bat "docker run -t -d --name ${buildContainer} ${buildImage}"
-        //     }
-        // }
-        // stage('Pull Run Image') {
-        //     steps {
-        //         // -t keep docker container running
-        //         bat "docker pull ${runImageBase}"
-        //     }
-        // }
+        stage('Create Build Image') {
+            steps {
+                bat "docker build -t ${buildImage}:latest ."
+            }
+        }
+        stage('Create Build Container') {
+            steps {
+                // -t keep docker container running
+                bat "docker run -t -d --name ${buildContainer} ${buildImage}"
+            }
+        }
+        stage('Pull Run Image') {
+            steps {
+                // -t keep docker container running
+                bat "docker pull ${runImageBase}"
+            }
+        }
 
-        // stage('Create Run Container') {
-        //     steps {
-        //         // -t keep docker container running
-        //         bat "docker run -t -d --name ${runContainer} ${runImageBase}"
+        stage('Create Run Container') {
+            steps {
+                // -t keep docker container running
+                bat "docker run -t -d --name ${runContainer} ${runImageBase}"
 
-        //         bat "docker exec ${runContainer} mkdir /app"
-        //     }
-        // }
+                bat "docker exec ${runContainer} mkdir /app"
+            }
+        }
 
-        // stage('Build Web Site') {
-        //     when {
-        //         branch 'development'
-        //     }
-        //     steps {
-        //         bat "docker exec ${buildContainer} npm install"
-        //         bat "docker exec ${buildContainer} npm run build"
-        //         bat "docker cp ${buildContainer}:/src/build ${tempFolder}"
-        //         bat "docker cp ${tempFolder} ${runContainer}:/"
-        //         bat "rmdir ${tempFolder} /s /q"
-        //         bat "docker exec ${runContainer} npm install -g serve"
-        //         // bat "docker exec ${runContainer} serve -s /app -l 3000"
+        stage('Build Web Site') {
+            when {
+                branch 'development'
+            }
+            steps {
+                bat "docker exec ${buildContainer} npm install"
+                bat "docker exec ${buildContainer} npm run build"
+                bat "docker cp ${buildContainer}:/src/build ${tempFolder}"
+                bat "docker cp ${tempFolder} ${runContainer}:/"
+                bat "rmdir ${tempFolder} /s /q"
+                bat "docker exec ${runContainer} npm install -g serve"
+                // bat "docker exec ${runContainer} serve -s /app -l 3000"
 
-        //         bat "docker commit ${runContainer} ${finalImage}:Build${BUILD_ID}"
-        //     }
-        // }
-        // stage('Production Container') {
-        //     when {
-        //         branch 'production'
-        //     }
-        //     steps {
-        //         bat "docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-production.sh"
-        //         input message: 'Finished using the web site? (Click "Proceed" to continue)'
-        //         bat "docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh"
-        //     }
-        // }
+                bat "docker commit ${runContainer} ${finalImage}:Build${BUILD_ID}"
+            }
+        }
+        stage('Production Container') {
+            when {
+                branch 'production'
+            }
+            steps {
+                bat "docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-production.sh"
+                input message: 'Finished using the web site? (Click "Proceed" to continue)'
+                bat "docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh"
+            }
+        }
 
-    // stage('Stop Running Containers') {
-    //     steps {
-    //         bat "docker stop ${buildContainer}"
-    //         bat "docker stop ${runContainer}"
-    //     }
-    // }
+        stage('Stop Running Containers') {
+            steps {
+                bat "docker stop ${buildContainer}"
+                bat "docker stop ${runContainer}"
+            }
+        }
     }
-    // post {
-    //   //  success {
-    //   //  }
+    post {
+        cleanup {
+                catchError(buildResult: 'SUCCESS', stageResult: 'SUCCESS') {
+                /* clean up our workspace */
+                //  deletedir()
 
-    //   //  failure {
-    //   //  }
+                /* clean up tmp directory */
+                dir("${workspace}@tmp") {
+                    deletedir()
+                }
 
-    //     cleanup {
-    //         catchError {
-    //             /* clean up our workspace */
-    //             //  deletedir()
-
-    //             /* clean up tmp directory */
-    //             dir("${workspace}@tmp") {
-    //                 deletedir()
-    //             }
-
-//             /* clean up script directory */
-//             dir("${workspace}@script") {
-//                 deletedir()
-//             }
-//         }
-//     }
-// }
+                /* clean up script directory */
+                dir("${workspace}@script") {
+                    deletedir()
+                }
+            }
+        }
+    }
 }
