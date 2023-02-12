@@ -52,17 +52,17 @@ pipeline {
             }
             steps {
                 bat "docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh"
-                input message: "Finished using the web site? (Click "Proceed" to continue)"
+                input message: 'Finished using the web site? (Click "Proceed" to continue)'
                 bat "docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh"
             }
         }
         stage('Production Container') {
             when {
-                branch 'development'
+                branch 'production'
             }
             steps {
-                bat "docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-development.sh"
-                input message: "Finished using the web site? (Click "Proceed" to continue)"
+                bat "docker exec ${buildContainer} sh ./jenkins/scripts/deliver-for-production.sh"
+                input message: 'Finished using the web site? (Click "Proceed" to continue)'
                 bat "docker exec ${buildContainer} sh ./jenkins/scripts/kill.sh"
             }
         }
