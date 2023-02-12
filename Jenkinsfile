@@ -107,11 +107,11 @@ pipeline {
         }
     }
     post {
-        success {
-        }
+      //  success {
+      //  }
 
-        failure {
-        }
+      //  failure {
+      //  }
 
         cleanup {
             /* clean up our workspace */
