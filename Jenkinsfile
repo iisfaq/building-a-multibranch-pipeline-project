@@ -105,28 +105,28 @@ pipeline {
             }
         }
     }
-    post {
-      //  success {
-      //  }
+    // post {
+    //   //  success {
+    //   //  }
 
-      //  failure {
-      //  }
+    //   //  failure {
+    //   //  }
 
-        cleanup {
-            catchError {
-                /* clean up our workspace */
-                //  deletedir()
+    //     cleanup {
+    //         catchError {
+    //             /* clean up our workspace */
+    //             //  deletedir()
 
-                /* clean up tmp directory */
-                dir("${workspace}@tmp") {
-                    deletedir()
-                }
+    //             /* clean up tmp directory */
+    //             dir("${workspace}@tmp") {
+    //                 deletedir()
+    //             }
 
-                /* clean up script directory */
-                dir("${workspace}@script") {
-                    deletedir()
-                }
-            }
-        }
-    }
+    //             /* clean up script directory */
+    //             dir("${workspace}@script") {
+    //                 deletedir()
+    //             }
+    //         }
+    //     }
+    // }
 }
