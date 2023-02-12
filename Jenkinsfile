@@ -1,10 +1,10 @@
 def name = 'react'
 def tempFolder  = "c:\\temp\\app"
-def buildImage = "my-${name}-build-image"
-def buildContainer = "my-${name}-build-container"
-def runImageBase = "node:lts-alpine"
-def runContainer = "my-${name}-run-container"
-def finalImage = "my-${name}-run-image"
+def buildImage = "my-${name}-build-image-${BRANCH_NAME}-${BUILD_ID}"
+def buildContainer = "my-${name}-build-container-${BRANCH_NAME}-${BUILD_ID}"
+def runImageBase = 'node:lts-alpine'
+def runContainer = "my-${name}-run-container-${BRANCH_NAME}-${BUILD_ID}"
+def finalImage = "my-${name}-run-image-${BRANCH_NAME}-${BUILD_ID}"
 
 pipeline {
     agent  {
@@ -19,6 +19,14 @@ pipeline {
     stages {
         stage('Clean Workspace & Checkout Source Code') {
             steps {
+                // send to email
+                emailext(
+                    subject: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                    body: '''<p>STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+                    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>''',
+                    recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                 )
+
                 deleteDir()
                 checkout scm
 
@@ -33,7 +41,7 @@ pipeline {
                 }
                 catchError {
                     bat "docker rm ${runContainer}"
-                }                
+                }
                 catchError {
                     bat "docker rmi ${buildImage} --force"
                 }
@@ -60,12 +68,12 @@ pipeline {
                 // -t keep docker container running
                 bat "docker pull ${runImageBase}"
             }
-        }              
+        }
 
         stage('Create Run Container') {
             steps {
                 // -t keep docker container running
-                bat "docker run -t -d --name ${runContainer} -p 3000:3000 ${runImageBase}"
+                bat "docker run -t -d --name ${runContainer} ${runImageBase}"
 
                 bat "docker exec ${runContainer} mkdir /app"
             }
@@ -106,6 +114,23 @@ pipeline {
         }
     }
     post {
+        success {
+            emailext(
+                subject: "SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: '''<p>SUCCESSFUL: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+                    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>''',
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                )
+        }
+
+        failure {
+            emailext(
+                subject: "FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: '''<p>FAILED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]':</p>
+                    <p>Check console output at &QUOT;<a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a>&QUOT;</p>''',
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']]
+                )
+        }
         cleanup {
             /* clean up our workspace */
             //  deleteDir()
