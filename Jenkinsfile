@@ -121,9 +121,9 @@ pipeline {
                 deleteDir()
             }
             /* clean up script directory */
-            dir("${workspace}@script") {
-                deleteDir()
-            }
+            //dir("${workspace}@script") {
+            //    deleteDir()
+           // }
         }
     }
 }
