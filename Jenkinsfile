@@ -76,7 +76,7 @@ pipeline {
                 bat "docker cp ${tempFolder} ${runContainer}:/"
                 bat "rmdir ${tempFolder} /s /q"
                 bat "docker exec ${runContainer} npm install -g serve"
-                bat 'docker exec ${runContainer} serve -s /app -l 3000'
+                // bat "docker exec ${runContainer} serve -s /app -l 3000"
             }
         }
         stage('Production Container') {
